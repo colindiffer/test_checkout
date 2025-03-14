@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "710875289780",
+    "project_id": "test-checkout-daff3",
+    "storage_bucket": "test-checkout-daff3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:710875289780:android:1a8e867b74b7f1e11b5fe1",
+        "android_client_info": {
+          "package_name": "com.propellernet.test_checkout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkaQHy75CqdX_FK5gp6-JZNTpEqKLI9AM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .product-list {
+            margin: 20px 0;
+        }
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: right;
+        }
+        .payment-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .checkout-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .checkout-btn:hover {
+            background-color: #45a049;
+        }
+        .payment-option {
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Checkout</h1>
+        
+        <div class="product-list" id="products">
+            <!-- Products will be populated dynamically -->
+        </div>
+        
+        <div class="total">
+            Total: <span id="total-price">$0.00</span>
+        </div>
+        
+        <div class="payment-section">
+            <h2>Payment Method</h2>
+            <div class="payment-option">
+                <input type="checkbox" id="payment-agreed" name="payment-agreed">
+                <label for="payment-agreed">I agree to pay the total amount shown above</label>
+            </div>
+            
+            <button class="checkout-btn" id="complete-purchase">Complete Purchase</button>
+            <button class="checkout-btn" id="cancel-purchase" style="background-color: #f44336; margin-top: 10px;">Cancel Purchase</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "your-app.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-app.appspot.com",
+            messagingSenderId: "your-messaging-sender-id",
+            appId: "your-app-id"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Get products from localStorage if available
+        function getProductsFromStorage() {
+            console.log("Getting products from localStorage");
+            const storedProducts = localStorage.getItem('checkout_products');
+            console.log("Raw stored products:", storedProducts);
+            
+            if (storedProducts) {
+                try {
+                    const parsedProducts = JSON.parse(storedProducts);
+                    console.log("Successfully parsed products:", parsedProducts);
+                    return parsedProducts;
+                } catch (e) {
+                    console.error('Error parsing products from storage:', e);
+                }
+            }
+            
+            console.log("Using default product data");
+            // Default products as fallback
+            return [
+                { id: 1, name: "Product A", price: 19.99 },
+                { id: 2, name: "Product B", price: 29.99 },
+                { id: 3, name: "Product C", price: 9.99 }
+            ];
+        }
+        
+        // Function to display products
+        function displayProducts() {
+            const productList = document.getElementById('products');
+            productList.innerHTML = ''; // Clear existing content
+            let totalPrice = 0;
+            
+            // Get products from storage or use defaults
+            const products = getProductsFromStorage();
+            
+            products.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product-item';
+                productElement.innerHTML = `
+                    <span>${product.name}</span>
+                    <span>$${Number(product.price).toFixed(2)}</span>
+                `;
+                productList.appendChild(productElement);
+                
+                totalPrice += Number(product.price);
+            });
+            
+            document.getElementById('total-price').textContent = `$${totalPrice.toFixed(2)}`;
+        }
+        
+        // Handle checkout button
+        document.getElementById('complete-purchase').addEventListener('click', function() {
+            const paymentAgreed = document.getElementById('payment-agreed').checked;
+            
+            if (paymentAgreed) {
+                // Store confirmation in localStorage for the Dart code
+                localStorage.setItem('order_confirmation', 'true');
+                localStorage.removeItem('payment_cancelled');
+                // Redirect to confirmation page
+                window.location.href = 'confirmation.html';
+            } else {
+                alert('Please agree to the payment terms to continue.');
+            }
+        });
+        
+        // Handle cancel button
+        document.getElementById('cancel-purchase').addEventListener('click', function() {
+            localStorage.setItem('payment_cancelled', 'true');
+            localStorage.removeItem('order_confirmation');
+            window.location.href = 'payment-cancelled.html';
+        });
+        
+        // Initialize page
+        window.onload = function() {
+            console.log("Page loaded, initializing...");
+            displayProducts();
+        };
+    </script>
+</body>
+</html>

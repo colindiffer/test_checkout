@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checkout Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    .cart-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; display: flex; }
+    .item-image { width: 80px; height: 80px; margin-right: 15px; background: #eee; }
+    .item-details { flex: 1; }
+    .total { font-weight: bold; font-size: 18px; margin: 20px 0; }
+    button { background: #4CAF50; color: white; border: none; padding: 12px 20px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Checkout</h1>
+  <div id="cart-container"></div>
+  <div class="total">Total: <span id="total-amount">$0.00</span></div>
+  <button id="complete-order">Complete Order</button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const cartParam = urlParams.get('cart');
+      const orderId = urlParams.get('orderId');
+      
+      console.log("Cart data:", cartParam);
+      console.log("Order ID:", orderId);
+      
+      if (cartParam) {
+        try {
+          const cartData = JSON.parse(decodeURIComponent(cartParam));
+          displayCart(cartData);
+          document.getElementById('total-amount').textContent = '$' + cartData.total.toFixed(2);
+          
+          // Log cart data for debugging only - GA4 tracking will be handled by Dart
+          console.log('Cart data available for checkout tracking:', {
+            order_id: orderId,
+            value: cartData.total,
+            items: cartData.items
+          });
+        } catch (e) {
+          document.getElementById('cart-container').innerHTML = '<p>Error parsing cart data: ' + e + '</p>';
+          console.error('Error parsing cart data:', e);
+        }
+      } else {
+        document.getElementById('cart-container').innerHTML = '<p>No cart data provided</p>';
+      }
+      
+      document.getElementById('complete-order').addEventListener('click', function() {
+        // Redirect to confirmation page with same parameters
+        window.location.href = 'confirmation.html' + window.location.search;
+      });
+    });
+
+    function displayCart(cartData) {
+      const container = document.getElementById('cart-container');
+      container.innerHTML = '';
+      
+      cartData.items.forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.className = 'cart-item';
+        itemElement.innerHTML = `
+          <div class="item-image">
+            <img src="${item.imageUrl || '#'}" onerror="this.src='data:image/svg+xml,%3Csvg width=\\'80\\' height=\\'80\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Crect width=\\'80\\' height=\\'80\\' fill=\\'%23eee\\' /%3E%3C/svg%3E'" width="80">
+          </div>
+          <div class="item-details">
+            <h3>${item.name}</h3>
+            <p>${item.description || ''}</p>
+            <p>$${item.price.toFixed(2)}</p>
+          </div>
+        `;
+        container.appendChild(itemElement);
+      });
+    }
+  </script>
+</body>
+</html>

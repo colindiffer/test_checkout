@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Order Confirmation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      max-width: 800px; 
+      margin: 0 auto; 
+      padding: 20px; 
+      text-align: center; 
+      line-height: 1.6;
+    }
+    .confirmation-container {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 30px;
+      margin-top: 20px;
+      background-color: #f8f8f8;
+    }
+    .success-icon {
+      color: #4CAF50;
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    .order-details {
+      margin-top: 30px;
+      text-align: left;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+    .item-list {
+      margin: 20px 0;
+    }
+    .item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 20px;
+      text-align: right;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="confirmation-container">
+    <div class="success-icon">✓</div>
+    <h1>Order Confirmed!</h1>
+    <p>Thank you for your purchase. Your order has been successfully placed.</p>
+    <p id="order-id">Order ID: </p>
+    
+    <div class="order-details">
+      <h2>Order Summary</h2>
+      <div id="item-list" class="item-list">
+        <!-- Items will be inserted here -->
+      </div>
+      <div class="total">Total: <span id="total-amount">$0.00</span></div>
+    </div>
+    
+    <button id="return-to-app">Return to App</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Parse URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const cartParam = urlParams.get('cart');
+      const orderId = urlParams.get('orderId');
+      
+      // Display order ID
+      document.getElementById('order-id').textContent = 'Order ID: ' + (orderId || 'Unknown');
+      
+      if (cartParam) {
+        try {
+          const cartData = JSON.parse(decodeURIComponent(cartParam));
+          displayOrderSummary(cartData);
+          
+          // Remove GA4 tracking from HTML - will be handled by Dart
+          console.log('Cart data available for tracking:', {
+            transaction_id: orderId,
+            value: cartData.total,
+            items: cartData.items
+          });
+          
+        } catch (e) {
+          console.error('Error parsing cart data:', e);
+        }
+      }
+      
+      // Return to app button
+      document.getElementById('return-to-app').addEventListener('click', function() {
+        // Send message to Flutter through the JavaScript channel
+        if (window.AppChannel) {
+          window.AppChannel.postMessage('orderComplete');
+        } else {
+          console.log('AppChannel not available');
+          window.close();
+        }
+      });
+    });
+    
+    // Remove sendPurchaseEvent function - GA4 tracking will be handled by Dart
+
+    function displayOrderSummary(cartData) {
+      const itemList = document.getElementById('item-list');
+      itemList.innerHTML = '';
+      
+      cartData.items.forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.className = 'item';
+        itemElement.innerHTML = `
+          <span>${item.name}</span>
+          <span>$${item.price.toFixed(2)}</span>
+        `;
+        itemList.appendChild(itemElement);
+      });
+      
+      document.getElementById('total-amount').textContent = '$' + cartData.total.toFixed(2);
+    }
+  </script>
+</body>
+</html>
