@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Test Checkout App
 
 A Flutter-based checkout application deployed on Firebase.
@@ -48,3 +49,6 @@ If the page is not visible:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# test_checkout
+>>>>>>> 22526681ffe76a503e9b18d37df6c489133b767d

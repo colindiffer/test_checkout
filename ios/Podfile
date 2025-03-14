@@ -1,0 +1,4 @@
+# Uncomment this line to define a global platform for your project
+platform :ios, '13.0'  # Change from current version (likely 12.0) to 13.0
+
+# ...existing code...
